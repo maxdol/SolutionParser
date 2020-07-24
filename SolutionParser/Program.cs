@@ -85,7 +85,7 @@ namespace SolutionParser
                                           : "?";
                 string configs = string.Join(", ", p.Configurations.OrderBy(t => t.Item1)
                                         .Select(t => $"({t.Item1} {(t.Item2 ? "+" : "-")})"));
-                Console.WriteLine($"{p.ProjectName,-20} {p.PlatformName,-30} {sign}\t [{configs}]");
+                Console.WriteLine($"{p.ProjectName,-30} {p.PlatformName,-30} {sign}\t [{configs}]");
             }
         }
 
