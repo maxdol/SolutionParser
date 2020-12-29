@@ -92,13 +92,20 @@ namespace SolutionParser
         private static void PrintDependenciesTree(Options options, SolutionFile sln)
         {
             Console.WriteLine("\n\n================ Project dependencies ===================");
-            var projGuids = sln.ProjectsInOrder.ToDictionary(p => p.ProjectGuid, p => p.ProjectName);
-            foreach (var p in sln.ProjectsInOrder.OrderBy(x => x.ProjectName))
+            var projGuids = sln.ProjectsInOrder.ToDictionary(p => p.ProjectGuid.ToUpper(), p => p.ProjectName);
+            foreach (var p in sln.ProjectsInOrder.OrderBy(x => x.ProjectName).Where(p => p.ProjectType != SolutionProjectType.SolutionFolder))
             {
                 Console.WriteLine($"{p.ProjectName,-30}");
                 foreach ( var d in p.Dependencies.Select(x => projGuids[x]))
                 {
-                    Console.WriteLine($"    -{d,-30}");
+                    Console.WriteLine($"    - sln {d,-30}");
+                }
+
+                var prj = new Project(p.AbsolutePath);
+                var references = prj.ProjectReferences.ToList();
+                foreach (var d in references.Select(x => $"{projGuids[x.Item2.ToUpper()],-30}{(x.Item3 != null ? " Condition = " + x.Item3 : "") }"))
+                {
+                    Console.WriteLine($"    --prj {d,-30}");
                 }
             }
         }
