@@ -45,6 +45,7 @@ namespace SolutionParser
                 }
 
                 PrintIncludeInBuildSummary(options, sln);
+                PrintDependenciesTree(options, sln);
             }
         }
 
@@ -86,6 +87,19 @@ namespace SolutionParser
                 string configs = string.Join(", ", p.Configurations.OrderBy(t => t.Item1)
                                         .Select(t => $"({t.Item1} {(t.Item2 ? "+" : "-")})"));
                 Console.WriteLine($"{p.ProjectName,-30} {p.PlatformName,-30} {sign}\t [{configs}]");
+            }
+        }
+        private static void PrintDependenciesTree(Options options, SolutionFile sln)
+        {
+            Console.WriteLine("\n\n================ Project dependencies ===================");
+            var projGuids = sln.ProjectsInOrder.ToDictionary(p => p.ProjectGuid, p => p.ProjectName);
+            foreach (var p in sln.ProjectsInOrder.OrderBy(x => x.ProjectName))
+            {
+                Console.WriteLine($"{p.ProjectName,-30}");
+                foreach ( var d in p.Dependencies.Select(x => projGuids[x]))
+                {
+                    Console.WriteLine($"    -{d,-30}");
+                }
             }
         }
 
