@@ -96,14 +96,23 @@ namespace SolutionParser
             foreach (var p in sln.ProjectsInOrder.OrderBy(x => x.ProjectName).Where(p => p.ProjectType != SolutionProjectType.SolutionFolder))
             {
                 Console.WriteLine($"{p.ProjectName,-30}");
-                foreach ( var d in p.Dependencies.Select(x => projGuids[x]))
+                foreach (var d in p.Dependencies.Select(x => projGuids[x]))
                 {
                     Console.WriteLine($"    - sln {d,-30}");
                 }
 
                 var prj = new Project(p.AbsolutePath);
                 var references = prj.ProjectReferences.ToList();
-                foreach (var d in references.Select(x => $"{projGuids[x.Item2.ToUpper()],-30}{(x.Item3 != null ? " Condition = " + x.Item3 : "") }"))
+                var referenceNames = references.Select(x =>
+                        {
+                            string name;
+                            if (projGuids.TryGetValue(x.Item2.ToUpper(), out name))
+                                return $"{name,-30}{(x.Item3 != null ? " Condition = " + x.Item3 : "") }";
+                            else
+                                return $"!!! Wrong Reference {x.Item1} {x.Item2} {(x.Item3 != null ? " Condition = " + x.Item3 : "") }";
+                        }
+                    );
+                foreach (var d in referenceNames)
                 {
                     Console.WriteLine($"    --prj {d,-30}");
                 }
